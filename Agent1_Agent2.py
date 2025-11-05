@@ -1,6 +1,7 @@
 import random
 import numpy as np
 
+
 #365 days = 365 trials
 #Agent 1 probabilities will be hardcoded
 #After everyday Agent 2 will update their history for Agent 1
@@ -8,7 +9,7 @@ import numpy as np
 #Agent 2 will use that "history" set to improve their calculations as days progress
 
 
-#Use season for probability.
+#Use season for probabilit y.
 #For example, if fall may have higher chance of getting a pumpkin spice
 #If winter maybe a higher chance of hot beverage rather than cold
 #If summer/spring higher chance of cold beverage
@@ -22,8 +23,7 @@ weather = ["sunny", "cloudy", "rainy", "snowy", "windy"]
 #Hardcode whatever probability we make up
 
 num_days = 365
-correct_predictions = 0
-agent2_stored_agent1 = []
+
 count = 0
 
 days = {"Monday",
@@ -35,10 +35,36 @@ days = {"Monday",
         "Sunday"}
 
 #Menu for the solids
-menu_solids = ["hashbrowns", "pancakes", "eggs", "oatmeal", "soup", "bagel", "toast", "burrito"]
+menu_solids = ["hashbrowns" , "pancakes", "eggs", "oatmeal" , "soup" , "bagel" , "toast" , "burrito"]
 
 #Menu for the liquids
-menu_liquids = ["coffee", "water", "soda", "iced tea", "chai", "pumpkin spice", "latte", "hot chocolate"]
+menu_liquids = ["coffee", "water" , "soda" , "iced tea", "chai", "pumpkin spice", "latte",  "hot chocolate"]
+
+
+#Menu for Agent2 #Agent2 knows nothing of agent1 so each food has equal probability
+agent2_menu_solids = {"sunny": {"hashbrowns": 0.1 , "pancakes":0.1, "eggs": 0.1, "oatmeal": 0.1 , "soup": 0.1, "bagel": 0.1, "toast": 0.1 , "burrito": 0.1 },
+                             "cloudy": {"hashbrowns": 0.1 , "pancakes":0.1, "eggs": 0.1, "oatmeal": 0.1 , "soup": 0.1, "bagel": 0.1, "toast": 0.1 , "burrito": 0.1},
+                             "rainy": {"hashbrowns": 0.1 , "pancakes":0.1, "eggs": 0.1, "oatmeal": 0.1 , "soup": 0.1, "bagel": 0.1, "toast": 0.1 , "burrito": 0.1 },
+                             "snowy": {"hashbrowns": 0.1 , "pancakes":0.1, "eggs": 0.1, "oatmeal": 0.1 , "soup": 0.1, "bagel": 0.1, "toast": 0.1 , "burrito": 0.1 },
+                             "windy": {"hashbrowns": 0.1 , "pancakes":0.1, "eggs": 0.1, "oatmeal": 0.1 , "soup": 0.1, "bagel": 0.1, "toast": 0.1 , "burrito": 0.1 }
+                             }
+
+agent2_menu_liquids = {"sunny": {"coffee": 0.1, "water": 0.1, "soda": 0.1, "iced_tea": 0.1, "chai": 0.1, "pumpkin_spice": 0.1, "latte": 0.1, "hot_chocolate": 0.1},
+                              "cloudy": {"coffee": 0.1, "water": 0.1, "soda": 0.1, "iced_tea": 0.1, "chai": 0.1, "pumpkin_spice": 0.1, "latte": 0.1, "hot_chocolate": 0.1},
+                              "rainy": {"coffee": 0.1, "water": 0.1, "soda": 0.1, "iced_tea": 0.1, "chai": 0.1, "pumpkin_spice": 0.1, "latte": 0.1, "hot_chocolate": 0.1},
+                              "snowy": {"coffee": 0.1, "water": 0.1, "soda": 0.1, "iced_tea": 0.1, "chai": 0.1, "pumpkin_spice": 0.1, "latte": 0.1, "hot_chocolate": 0.1},
+                              "windy": {"coffee": 0.1, "water": 0.1, "soda": 0.1, "iced_tea": 0.1, "chai": 0.1, "pumpkin_spice": 0.1, "latte": 0.1, "hot_chocolate": 0.1}
+
+}
+
+
+
+
+agent2_stored_agent1 = {"sunny": {"right": 0, "wrong": 0},
+                        "cloudy": {"right": 0, "wrong": 0},
+                        "rainy": {"right": 0, "wrong": 0},
+                        "snowy": {"right": 0, "wrong": 0},
+                        "windy": {"right": 0, "wrong": 0}}
 
 
 #Given the season, the temperature will either be hot or cold
@@ -71,54 +97,109 @@ agent1_food_choice_liquids = {"sunny": {"coffee": 0.5, "water": 0.1, "soda": 0.2
 
 }
 
-def agent1_probability(days = None):
-    # Days are separated by their corresponding season based around the year
-    current_day = days
-    if current_day < 90:
-        season = "spring"
-    elif current_day < 180:
-        season = "summer"
-    elif current_day < 270:
-        season = "fall"
-    else:
-        season = "winter"
 
-    # Choose the dictionary for the corresponding temperature
-    # Example: if season = "spring" then season_weather_choices = {"hot": 0.7, "cold": 0.3}
-    season_temperature_choices = agent1_season[season]
 
-    # Chooses either "hot" or "cold" based on the probability given for these two words
-    chosen_season_temperature = \
-    random.choices(list(season_temperature_choices.keys()), weights=list(season_temperature_choices.values()))[0]
-
-    # Choose the dictionary for the corresponding weather
-    # Example: if chosen_season_temperature = hot, then {"sunny": 0.6, "cloudy": 0.2, "rainy": 0.1, "snowy": 0.0, "windy": 0.1}
-    choose_weather = agent1_weather[chosen_season_temperature]
-
-    # Choose the weather based on the probability for hot or cold
-    chosen_temperature = random.choices(list(choose_weather.keys()), weights=list(choose_weather.values()))[0]
-
-    # Choose the dictionary for the corresponding food based on the weather
-    choose_solid_food = agent1_food_choice_solids[chosen_temperature]
-
-    # Pick the food from the solids list
-    agent1_solid_food_choice = random.choices(list(choose_solid_food.keys()), weights=list(choose_solid_food.values()))[
-        0]
-
-    # Choose the dictionary for the corresponding liquid based on the weather
-    choose_liquid_food = agent1_food_choice_liquids[chosen_temperature]
-
-    # Pick the liquid from the liquid list
-    agent1_liquid_food_choice = \
-    random.choices(list(choose_liquid_food.keys()), weights=list(choose_liquid_food.values()))[0]
-
-    print("Day: ", current_day)
-    print(agent1_solid_food_choice + " and " + agent1_liquid_food_choice)
 
 
 #Begin the trial
-for days in range(1, num_days+1):
-    agent1_probability(days)
+year = 0
+correct_predictions_solids = 0
+correct_predictions_liquids = 0
+correct_predictions_solids_liquids = 0
+
+for i in range(1, 10):
+    year+= 1
+    for days in range(1, num_days+1):
+        # Days are separated by their corresponding season based around the year
+        current_day = days
+        if current_day < 90:
+            season = "spring"
+        elif current_day < 180:
+            season = "summer"
+        elif current_day < 270:
+            season = "fall"
+        else:
+            season = "winter"
+
+        # Choose the dictionary for the corresponding temperature
+        # Example: if season = "spring" then season_weather_choices = {"hot": 0.7, "cold": 0.3}
+        season_temperature_choices = agent1_season[season]
+
+        # Chooses either "hot" or "cold" based on the probability given for these two words
+        chosen_season_temperature = \
+            random.choices(list(season_temperature_choices.keys()), weights=list(season_temperature_choices.values()))[0]
+
+        # Choose the dictionary for the corresponding weather
+        # Example: if chosen_season_temperature = hot, then {"sunny": 0.6, "cloudy": 0.2, "rainy": 0.1, "snowy": 0.0, "windy": 0.1}
+        choose_weather = agent1_weather[chosen_season_temperature]
+
+        # Choose the weather based on the probability for hot or cold
+        chosen_temperature = random.choices(list(choose_weather.keys()), weights=list(choose_weather.values()))[0]
+
+        # Choose the dictionary for the corresponding food based on the weather
+        choose_solid_food = agent1_food_choice_solids[chosen_temperature]
+
+
+        #--------------------------------------------------
+        # Pick the food from the solids list
+        agent1_solid_food_choice = \
+            random.choices(list(choose_solid_food.keys()), weights=list(choose_solid_food.values()))[0]
+
+        # Choose the dictionary for the corresponding liquid based on the weather
+        choose_liquid_food = agent1_food_choice_liquids[chosen_temperature]
+
+        # Pick the liquid from the liquid list
+        agent1_liquid_food_choice = \
+            random.choices(list(choose_liquid_food.keys()), weights=list(choose_liquid_food.values()))[0]
+
+        #-------------------------------------------------------
+
+
+
+        # Agent2 guessing
+        #-----------------------------------------------------
+
+
+        # Agent2 will use what the current weather is (sunny, windy, etc) and guess from that list
+        agent2_guess_solids = random.choices(list(agent2_menu_solids[chosen_temperature].keys()), weights = list(agent2_menu_solids[chosen_temperature].values()))[0]
+        agent2_guess_liquids = random.choices(list(agent2_menu_liquids[chosen_temperature].keys()), weights = list(agent2_menu_liquids[chosen_temperature].values()))[0]
+
+        if agent2_guess_solids == agent1_solid_food_choice:
+            correct_predictions_solids += 1
+            increased_probability_solid = 0.05
+        else:
+            increased_probability_solid = -0.01
+
+        if agent2_guess_liquids == agent1_liquid_food_choice:
+            correct_predictions_liquids += 1
+            increased_probability_liquid = 0.05
+        else:
+            increased_probability_liquid = -0.01
+
+        if agent2_guess_solids == agent1_solid_food_choice and agent2_guess_liquids == agent1_liquid_food_choice:
+            correct_predictions_solids_liquids += 1
+            #print(f"Day {current_day}: Agent_2 correctly predicted {agent1_solid_food_choice} + {agent1_liquid_food_choice}")
+            agent2_stored_agent1[chosen_temperature]["right"] += 1
+        else:
+            agent2_stored_agent1[chosen_temperature]["wrong"] += 1
+
+        agent2_menu_liquids[chosen_temperature][agent1_liquid_food_choice] += increased_probability_liquid
+        agent2_menu_liquids[chosen_temperature][agent1_liquid_food_choice] = max(agent2_menu_liquids[chosen_temperature][agent1_liquid_food_choice], 0.01)
+
+        #Normalize probabilities for this weather type
+        total_s = sum(agent2_menu_solids[chosen_temperature].values())
+        total_l = sum(agent2_menu_liquids[chosen_temperature].values())
+
+        for t in agent2_menu_solids[chosen_temperature]:
+            agent2_menu_solids[chosen_temperature][t] /= total_s
+        for x in agent2_menu_liquids[chosen_temperature]:
+            agent2_menu_liquids[chosen_temperature][x] /= total_l
+
+
+
+    print(f"Year {year}: Total probability for solids is: {correct_predictions_solids/365 * 100} " )
+    print(f"Year {year}: Total probability for liquids is: {correct_predictions_liquids/365 * 100} " )
+    print(f"Year {year}: Total probability for solids and liquids is: {correct_predictions_solids_liquids/365 * 100} " )
 
 
 
