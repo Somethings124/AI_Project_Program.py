@@ -103,12 +103,13 @@ agent1_food_choice_liquids = {"sunny": {"coffee": 0.5, "water": 0.1, "soda": 0.2
 
 #Begin the trial
 year = 0
-correct_predictions_solids = 0
-correct_predictions_liquids = 0
-correct_predictions_solids_liquids = 0
 
-for i in range(1, 10):
+
+for i in range(1, 100):
     year+= 1
+    correct_predictions_solids = 0
+    correct_predictions_liquids = 0
+    correct_predictions_solids_liquids = 0
     for days in range(1, num_days+1):
         # Days are separated by their corresponding season based around the year
         current_day = days
