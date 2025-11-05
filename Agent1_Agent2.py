@@ -105,11 +105,10 @@ agent1_food_choice_liquids = {"sunny": {"coffee": 0.5, "water": 0.1, "soda": 0.2
 year = 0
 
 
-for i in range(1, 100):
+for i in range(1, 20):
     year+= 1
     correct_predictions_solids = 0
     correct_predictions_liquids = 0
-    correct_predictions_solids_liquids = 0
     for days in range(1, num_days+1):
         # Days are separated by their corresponding season based around the year
         current_day = days
@@ -165,43 +164,43 @@ for i in range(1, 100):
         agent2_guess_solids = random.choices(list(agent2_menu_solids[chosen_temperature].keys()), weights = list(agent2_menu_solids[chosen_temperature].values()))[0]
         agent2_guess_liquids = random.choices(list(agent2_menu_liquids[chosen_temperature].keys()), weights = list(agent2_menu_liquids[chosen_temperature].values()))[0]
 
+
+        #If correct then reward Agent2 and increase that items probability for sunny, windy, etc
+        #If not correct then decrease the probability of that food item being chosen for sunny, windy, etc
         if agent2_guess_solids == agent1_solid_food_choice:
             correct_predictions_solids += 1
-            increased_probability_solid = 0.05
+            increased_probability_solid = 0.12
         else:
-            increased_probability_solid = -0.01
+            increased_probability_solid = -0.005
 
         if agent2_guess_liquids == agent1_liquid_food_choice:
             correct_predictions_liquids += 1
-            increased_probability_liquid = 0.05
+            increased_probability_liquid = 0.12
         else:
-            increased_probability_liquid = -0.01
+            increased_probability_liquid = -0.005
 
-        if agent2_guess_solids == agent1_solid_food_choice and agent2_guess_liquids == agent1_liquid_food_choice:
-            correct_predictions_solids_liquids += 1
-            #print(f"Day {current_day}: Agent_2 correctly predicted {agent1_solid_food_choice} + {agent1_liquid_food_choice}")
-            agent2_stored_agent1[chosen_temperature]["right"] += 1
-        else:
-            agent2_stored_agent1[chosen_temperature]["wrong"] += 1
+        #Update the probability in the set and prevent negative probabilities
+        agent2_menu_solids[chosen_temperature][agent1_solid_food_choice] += increased_probability_solid
+        agent2_menu_solids[chosen_temperature][agent1_solid_food_choice] = max(
+            agent2_menu_solids[chosen_temperature][agent1_solid_food_choice], 0.005)
 
         agent2_menu_liquids[chosen_temperature][agent1_liquid_food_choice] += increased_probability_liquid
-        agent2_menu_liquids[chosen_temperature][agent1_liquid_food_choice] = max(agent2_menu_liquids[chosen_temperature][agent1_liquid_food_choice], 0.01)
+        agent2_menu_liquids[chosen_temperature][agent1_liquid_food_choice] = max(
+            agent2_menu_liquids[chosen_temperature][agent1_liquid_food_choice], 0.005)
 
-        #Normalize probabilities for this weather type
-        total_s = sum(agent2_menu_solids[chosen_temperature].values())
-        total_l = sum(agent2_menu_liquids[chosen_temperature].values())
+        #Keep the probability even and equal
+        total_solids = sum(agent2_menu_solids[chosen_temperature].values())
+        total_liquids = sum(agent2_menu_liquids[chosen_temperature].values())
 
-        for t in agent2_menu_solids[chosen_temperature]:
-            agent2_menu_solids[chosen_temperature][t] /= total_s
-        for x in agent2_menu_liquids[chosen_temperature]:
-            agent2_menu_liquids[chosen_temperature][x] /= total_l
-
+        for num_solids in agent2_menu_solids[chosen_temperature]:
+            agent2_menu_solids[chosen_temperature][num_solids] /= total_solids
 
 
-    print(f"Year {year}: Total probability for solids is: {correct_predictions_solids/365 * 100} " )
-    print(f"Year {year}: Total probability for liquids is: {correct_predictions_liquids/365 * 100} " )
-    print(f"Year {year}: Total probability for solids and liquids is: {correct_predictions_solids_liquids/365 * 100} " )
+        for num_liquids in agent2_menu_liquids[chosen_temperature]:
+            agent2_menu_liquids[chosen_temperature][num_liquids] /= total_liquids
 
+    print(f"Year {year}: Total probability for solids is: {(correct_predictions_solids/365 * 100):.2f}% " )
+    print(f"Year {year}: Total probability for liquids is: {(correct_predictions_liquids/365 * 100):.2f}% " )
 
 
 
